@@ -38,7 +38,7 @@ B. Feature Normalization
 
 C. Feature Visualization
 
-Download the music/speech dataset from here (链接到外部网站。). Unzip it and use the 'music_wav' and 'speech_wav' directories for the rest of the assignment.
+Download the music/speech dataset from here (http://opihi.cs.uvic.ca/sound/music_speech.tar.gz). Unzip it and use the 'music_wav' and 'speech_wav' directories for the rest of the assignment.
 
 [10] Implement a function visualize_features(path_to_musicspeech) that extracts 2 separate feature matrices for the files in each of the folder (music and speech). You will call your get_feature_data() function for that with blockSize = 1024 and hopSize = 256. You will also normalize the feature matrices over the entire dataset. Note that this means you have to normalize both feature matrices with the same z-score. (hint: concatenate the two feature matrices appropriately before calling normalize_zscore())
 
