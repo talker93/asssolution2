@@ -34,14 +34,25 @@ def block_audio(x,blockSize,hopSize,fs):
     return [xb, timeInSec]
 
 
+
 def extract_spectral_centroid(xb, fs):
     
     [nBlocks_,blockSize_] = xb.shape
-    SpecCentroidVector = np.zeros((nBlocks_,1))
+    specCentroidVector = np.zeros((nBlocks_,1))
+
+    Hann = np.hanning(len(blockSize_))
+    freqVec = np.fft.fftfreq(len(blockSize_)*2,1/fs)
+    freqVec = freqVec[0:np.floor(len(freqVec))]
+
+    for idx, val in enumerate(xb):
+        
+         freqMag = np.abs(np.fft.fft(val*Hann),len(val)*2)
+         specCentroidVector[idx] = np.sum(freqMag*freqVec)/np.sum(freqMag)
+
 
     # Do the mathemagic
     # Spectral Centroid in Hz, compute from the magnitude spectrum (not power spectrum)
-    return SpecCentroidVector
+    return specCentroidVector
 
 
 def extract_rms(xb, fs):
@@ -88,7 +99,6 @@ def extract_features(x, blockSize, hopSize, fs) :
     ZCRateVector = extract_zerocrossingrate(xb, fs)
     SpecCrestVector = extract_spectral_crest(xb, fs)
     SpecFluxVector = extract_spectral_flux(xb, fs)
-    
     
 
     return features
