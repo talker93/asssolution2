@@ -143,6 +143,52 @@ def extract_features(x, blockSize, hopSize, fs):
 
     return features
 
+def aggregate_feature_perfile(features):
+    aggFeatures = np.zeros((1, 10))
+    aggFeatures[0, 0] = np.mean(features.T[0])
+    aggFeatures[0, 1] = np.std(features.T[0])
+    aggFeatures[0, 2] = np.mean(features.T[1])
+    aggFeatures[0, 3] = np.std(features.T[1])
+    aggFeatures[0, 4] = np.mean(features.T[2])
+    aggFeatures[0, 5] = np.std(features.T[2])
+    aggFeatures[0, 6] = np.mean(features.T[3])
+    aggFeatures[0, 7] = np.std(features.T[3])
+    aggFeatures[0, 8] = np.mean(features.T[4])
+    aggFeatures[0, 9] = np.std(features.T[4])
+    
+    return aggFeatures
+
+def get_feature_data(path, blockSize, hopSize):
+    featureData = np.zeros((0, 10))
+    mapping = []
+    for root, dirs, filenames in os.walk(path):
+        for file in filenames:
+            mapping.append(os.path.join(root, file))
+    fileNumber = 1
+    for wav_path in mapping:
+        if os.path.splitext(wav_path)[1] == ".wav":
+            print("---------Evaluating file", fileNumber, "-----------")
+            sampleRate, audio = wavfile.read(wav_path)
+            print(wav_path, ": success read!")
+            features = extract_features(audio, blockSize, hopSize, fs)
+            aggFeatures = aggregate_feature_perfile(features)
+            featureData = np.concatenate((featureData, aggFeatures), axis=0)
+            fileNumber = fileNumber + 1
+            
+    return featureData
+
+def normalize_zscore(featureData):
+    mean = np.zeros((1, 10))
+    std = np.zeros((1, 10))
+    normFeatureMatrix = featureData
+    i = 0
+    while i < 10:
+        mean[0, i] = np.mean(featureData.T[i])
+        std[0, i] = np.std(featureData.T[i])
+        normFeatureMatrix.T[i] = (featureData.T[i] - mean[0, i]) / std[0, i]
+        i = i + 1
+        
+    return normFeatureMatrix
 
 fs = 44100
 f1 = 441
@@ -179,4 +225,10 @@ SCrest = extract_spectral_crest(xb, fs)
 ZCR = extract_zerocrossingrate(xb, fs)
 RMS = extract_rms(xb, fs)
 
-features = extract_features(x, blockSize, hopSize, fs)
+# features = extract_features(x, blockSize, hopSize, fs)
+
+# aggFeatures = aggregate_feature_perfile(features)
+
+featureData = get_feature_data("audio_test", blockSize, hopSize)
+
+normFeatureMatrix = normalize_zscore(featureData)
