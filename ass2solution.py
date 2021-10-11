@@ -190,6 +190,29 @@ def normalize_zscore(featureData):
         
     return normFeatureMatrix
 
+def draw():
+    # suppose we have 20 files
+    plt.subplots()
+    x_SCR_music = np.random.rand(1, 20)
+    y_SC_music = np.random.rand(1, 20)
+    ax1 = plt.scatter(x_SCR_music, y_SC_music, c='r')
+
+    x_SCR_speech = np.random.rand(1, 20)
+    y_SC_speech = np.random.rand(1, 20)
+    ax2 = plt.scatter(x_SCR_speech, y_SC_speech, c='b')
+    # plt.xscale('log')
+    # plt.yscale('log')
+
+    plt.title('SCR/SC Feature comparison')
+    # plt.xlabel('SCR mean')
+    # plt.ylabel('SC mean')
+
+    plt.legend((ax1, ax2), ('music', 'speech'),
+               numpoints=1, loc='upper right', ncol=3, fontsize=8)
+    plt.grid(False)
+
+    plt.show()
+
 fs = 44100
 f1 = 441
 f2 = 882
@@ -232,3 +255,5 @@ RMS = extract_rms(xb, fs)
 featureData = get_feature_data("audio_test", blockSize, hopSize)
 
 normFeatureMatrix = normalize_zscore(featureData)
+
+draw()
