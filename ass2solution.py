@@ -190,20 +190,16 @@ def normalize_zscore(featureData):
         
     return normFeatureMatrix
 
-def draw():
-    # suppose we have 20 files
+def draw(x_var_music, y_var_music, x_var_speech, y_var_speech, x, y):
+   
     plt.subplots()
-    x_SCR_music = np.random.rand(1, 20)
-    y_SC_music = np.random.rand(1, 20)
-    ax1 = plt.scatter(x_SCR_music, y_SC_music, c='r')
+    ax1 = plt.scatter(x_var_music, y_var_music, c='r')
 
-    x_SCR_speech = np.random.rand(1, 20)
-    y_SC_speech = np.random.rand(1, 20)
-    ax2 = plt.scatter(x_SCR_speech, y_SC_speech, c='b')
+    ax2 = plt.scatter(x_var_speech, y_var_speech, c='b')
     # plt.xscale('log')
     # plt.yscale('log')
-
-    plt.title('SCR/SC Feature comparison')
+    title = '{}/{} Feature Comparison'.format(x, y)
+    plt.title(title)
     # plt.xlabel('SCR mean')
     # plt.ylabel('SC mean')
 
@@ -213,6 +209,59 @@ def draw():
 
     plt.show()
 
+def visualize_features(path_to_musicspeech):
+    
+    for root, dirs, filenames in os.walk(path_to_musicspeech):
+        for directory in dirs:
+            if directory == "music_wav":
+                music_path = os.path.join(root, directory)
+            elif directory == "speech_wav":
+                speech_path = os.path.join(root,directory)
+                
+    
+    music_featureData = get_feature_data(music_path, 1024, 256)
+    music_splitPoint = music_featureData.shape[0]
+    
+    speech_featureData = get_feature_data(speech_path, 1024, 256)
+    speech_splitPoint = speech_featureData.shape[0]
+    
+    combined_featureData = np.concatenate((music_featureData, speech_featureData), 0)
+    normComb_featureData = normalize_zscore(combined_featureData)
+    normMusic_featureData = normComb_featureData[0:music_splitPoint, :]
+    normSpeech_featureData = normComb_featureData[-speech_splitPoint:]
+    
+    m_SC_mean = normMusic_featureData[:, 0]
+    s_SC_mean = normSpeech_featureData[:, 0]
+    m_SCR_mean = normMusic_featureData[:, 6]
+    s_SCR_mean = normSpeech_featureData[:, 6]
+    draw(m_SC_mean, m_SCR_mean, s_SC_mean, s_SCR_mean, 'Mean SC', 'Mean SCR')
+
+    m_SF_mean = normMusic_featureData[:, 8]
+    s_SF_mean = normSpeech_featureData[:, 8]
+    m_ZCR_mean = normMusic_featureData[:, 4]
+    s_ZCR_mean = normSpeech_featureData[:, 4]
+    draw(m_SF_mean, m_ZCR_mean, s_SF_mean, s_ZCR_mean, 'Mean SF', 'Mean ZCR')
+    
+    m_RMS_mean = normMusic_featureData[:, 2]
+    s_RMS_mean = normSpeech_featureData[:, 2]
+    m_RMS_std = normMusic_featureData[:, 3]
+    s_RMS_std = normSpeech_featureData[:, 3]
+    draw(m_RMS_mean,m_RMS_std, s_RMS_mean, s_RMS_std, 'Mean RMS', 'Std RMS')
+    
+    m_ZCR_std = normMusic_featureData[:, 5]
+    s_ZCR_std = normSpeech_featureData[:, 5]
+    m_SCR_std = normMusic_featureData[:, 7]
+    s_SCR_std = normSpeech_featureData[:, 7]
+    draw(m_ZCR_std, m_SCR_std, s_ZCR_std, s_SCR_std, 'Std ZCR', 'Std SCR')
+    
+    m_SC_std = normMusic_featureData[:, 1]
+    s_SC_std = normSpeech_featureData[:, 1]
+    m_SF_std = normMusic_featureData[:, 9]
+    s_SF_std = normSpeech_featureData[:, 9]
+    draw(m_SC_std, m_SF_std, s_SC_std, s_SF_std, 'Std SC', 'Std SF')
+  
+    return [normMusic_featureData, normSpeech_featureData]
+    
 fs = 44100
 f1 = 441
 f2 = 882
@@ -252,8 +301,10 @@ RMS = extract_rms(xb, fs)
 
 # aggFeatures = aggregate_feature_perfile(features)
 
-featureData = get_feature_data("audio_test", blockSize, hopSize)
+[normMusic_featureData, normSpeech_featureData] = visualize_features("music_speech")
 
-normFeatureMatrix = normalize_zscore(featureData)
+# featureData = get_feature_data("music_speech", blockSize, hopSize)
 
-draw()
+# normFeatureMatrix = normalize_zscore(featureData)
+
+# draw()
