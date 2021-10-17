@@ -233,19 +233,35 @@ def draw(x_var_music, y_var_music, x_var_speech, y_var_speech, x, y):
 
 
 def visualize_features(path_to_musicspeech):
-    
+                
     for root, dirs, filenames in os.walk(path_to_musicspeech):
         for directory in dirs:
             if directory == "music_wav":
                 music_path = os.path.join(root, directory)
-            elif directory == "speech_wav":
-                speech_path = os.path.join(root,directory)
-                
-    music_featureData = get_feature_data(music_path, blockSize, hopSize)
+    featureData = get_feature_data(music_path, blockSize, hopSize)
+    music_featureData = featureData
     music_splitPoint = music_featureData.shape[1]
-    
-    speech_featureData = get_feature_data(speech_path, blockSize, hopSize)
+                
+    for root, dirs, filenames in os.walk(path_to_musicspeech):
+        for directory in dirs:
+            if directory == "speech_wav":
+                speech_path = os.path.join(root,directory)
+    featureData = get_feature_data(speech_path, blockSize, hopSize)
+    speech_featureData = featureData
     speech_splitPoint = speech_featureData.shape[1]
+    
+    # for root, dirs, filenames in os.walk(path_to_musicspeech):
+    #     for directory in dirs:
+    #         if directory == "music_wav":
+    #             music_path = os.path.join(root, directory)
+    #         elif directory == "speech_wav":
+    #             speech_path = os.path.join(root,directory)
+                
+    # music_featureData = get_feature_data(music_path, blockSize, hopSize)
+    # music_splitPoint = music_featureData.shape[1]
+    
+    # speech_featureData = get_feature_data(speech_path, blockSize, hopSize)
+    # speech_splitPoint = speech_featureData.shape[1]
     
     combined_featureData = np.concatenate((music_featureData, speech_featureData), 1)
     normFeatureMatrix = normalize_zscore(combined_featureData)
@@ -292,37 +308,37 @@ if __name__ == '__main__':
     dataPath = DATASET_PATH
     fs = SAMPLE_RATE
 
-    f1 = 441
-    f2 = 882
-    t0 = 0
-    t1 = 1
-    t2 = 2
+    # f1 = 441
+    # f2 = 882
+    # t0 = 0
+    # t1 = 1
+    # t2 = 2
     
-    samples1 = t1*fs
-    samples2 = (t2-t1)*fs
-    dur1 = np.arange(t0,t1,1/fs)
-    dur2 = np.arange(t1,t2,1/fs)
-    y1 = np.sin(2 * np.pi * f1 * dur1)
-    y2 = np.sin(2 * np.pi * f2 * dur2)
-    y3 = ((np.random.rand(10000)/100000)-0.1)
+    # samples1 = t1*fs
+    # samples2 = (t2-t1)*fs
+    # dur1 = np.arange(t0,t1,1/fs)
+    # dur2 = np.arange(t1,t2,1/fs)
+    # y1 = np.sin(2 * np.pi * f1 * dur1)
+    # y2 = np.sin(2 * np.pi * f2 * dur2)
+    # y3 = ((np.random.rand(10000)/100000)-0.1)
     
-    y = np.concatenate((y1,y2,y3), axis=None)
-    dur = np.concatenate((dur1,dur2), axis=None)
+    # y = np.concatenate((y1,y2,y3), axis=None)
+    # dur = np.concatenate((dur1,dur2), axis=None)
     
-    windoewdY = y * np.hanning(len(y))
+    # windoewdY = y * np.hanning(len(y))
     
-    sp = np.fft.rfft(y,2*len(y))[:int(np.ceil(y.shape[-1]))]
-    freq = np.fft.fftfreq(2*len(y),1/fs)[:int(np.ceil(y.shape[-1]))]
-    plt.plot(freq[:5000],np.abs(sp)[:5000])
+    # sp = np.fft.rfft(y,2*len(y))[:int(np.ceil(y.shape[-1]))]
+    # freq = np.fft.fftfreq(2*len(y),1/fs)[:int(np.ceil(y.shape[-1]))]
+    # plt.plot(freq[:5000],np.abs(sp)[:5000])
     
-    x=y
-    [xb, timeInSec] = block_audio(x,blockSize,hopSize,fs)
+    # x=y
+    # [xb, timeInSec] = block_audio(x,blockSize,hopSize,fs)
     
-    SC = extract_spectral_centroid(xb, fs)
-    SF = extract_spectral_flux(xb)
-    SCR = extract_spectral_crest(xb)
-    ZCR = extract_zerocrossingrate(xb)
-    RMS = extract_rms(xb)
+    # SC = extract_spectral_centroid(xb, fs)
+    # SF = extract_spectral_flux(xb)
+    # SCR = extract_spectral_crest(xb)
+    # ZCR = extract_zerocrossingrate(xb)
+    # RMS = extract_rms(xb)
     
     [normMusic_featureData, normSpeech_featureData] = visualize_features(dataPath)
     
